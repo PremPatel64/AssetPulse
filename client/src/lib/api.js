@@ -1,7 +1,10 @@
 import axios from 'axios';
 import { useAuth } from '../store/useAuth';
 
-import { MOCK_ASSETS, MOCK_STATS, MOCK_NOTIFICATIONS, MOCK_ACTIVITY } from './mockData';
+import { 
+  MOCK_ASSETS, MOCK_STATS, MOCK_NOTIFICATIONS, MOCK_ACTIVITY, 
+  MOCK_USERS, MOCK_DEPARTMENTS, MOCK_CATEGORIES, MOCK_MAINTENANCE 
+} from './mockData';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000')
@@ -23,10 +26,11 @@ api.defaults.adapter = async (config) => {
   if (url.includes('/api/auth/login')) {
     data = { token: 'mock-jwt-token', user: { name: 'Admin User', role: 'ADMIN' } };
   } else if (url.includes('/api/assets')) {
-    if (url.includes('?')) {
+    if (url.includes('events')) {
+       data = MOCK_ACTIVITY; // Mock events
+    } else if (url.includes('?')) {
       data = { items: MOCK_ASSETS, total: MOCK_ASSETS.length };
     } else {
-      // Find specific asset or return array
       const idMatch = url.match(/\/api\/assets\/([a-zA-Z0-9_-]+)/);
       if (idMatch && idMatch[1] !== 'undefined') {
          data = MOCK_ASSETS.find(a => a._id === idMatch[1]) || MOCK_ASSETS[0];
@@ -34,8 +38,16 @@ api.defaults.adapter = async (config) => {
          data = MOCK_ASSETS;
       }
     }
-  } else if (url.includes('/api/dashboard/stats') || url.includes('/api/portfolio/stats')) {
+  } else if (url.includes('/api/portfolio/departments')) {
+    data = MOCK_DEPARTMENTS;
+  } else if (url.includes('/api/portfolio/categories')) {
+    data = MOCK_CATEGORIES;
+  } else if (url.includes('/api/portfolio/kpis') || url.includes('/api/portfolio/snapshot')) {
     data = MOCK_STATS;
+  } else if (url.includes('/api/users')) {
+    data = MOCK_USERS;
+  } else if (url.includes('/api/maintenance')) {
+    data = MOCK_MAINTENANCE;
   } else if (url.includes('/api/notifications')) {
     data = MOCK_NOTIFICATIONS;
   } else if (url.includes('/api/activity') || url.includes('/api/users/activity')) {
