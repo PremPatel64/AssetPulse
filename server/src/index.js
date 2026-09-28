@@ -37,9 +37,14 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/assetpulse
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('Connected to MongoDB');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    // Vercel handles the listening itself, so we only listen locally
+    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    }
   })
   .catch(err => {
     console.error('Failed to connect to MongoDB', err);
-    process.exit(1);
+    if (!process.env.VERCEL) process.exit(1);
   });
+
+export default app;
